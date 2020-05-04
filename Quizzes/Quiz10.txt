@@ -1,0 +1,43 @@
+addi $t0, $zero, 8192         # set read memory pointer to 8192 (ready flag)
+addi $t1, $zero, 5000         # set memory array pointer to 5000 (does not exist in C!)
+addi $t2, $zero, 0            # i = 0;
+#Variables: i = $t2, c=$t4,j=$t5,t=$t6
+
+ReadLoopStart:                # 
+		lw   $t3, 0($t0)              # 
+		beq  $t3, $zero, ReadLoopEnd  # while (drdy != 0) {
+		lw   $t3, 4($t0)              #   t = dinp;
+		sw   $t3, 0($t1)              #   x[i] = t;
+		addi $t1, $t1, 4              #   increment memory array pointer (does not exist in C!)
+		addi $t2, $t2, 1              #   i++;
+		addi $t0,$t0,4
+		j    ReadLoopStart
+
+ReadLoopEnd:                  # }
+		addi $t4, $t2, 0              # c=i
+		addi $t2,$zero,0			  # i=0
+		addi $t5, $zero, 0            # j = 0;
+
+iLoopStart:
+		beq  $t2, $t4, iLoopEnd     # while (i < c) {
+		lw $t6,0($t1)				#t=x[i]
+		mul $t6,$t6,$t6				#t=t*t
+		add $t5,$t2,$t4				#j=i+c
+		sw	$t6,0($t5)				#y[j]=t
+		addi $t1,$t1,4				#inc mem point
+		addi $t2,$t2,1				#i++
+		j iLoopStart
+iLoopEnd:
+		addi $t2,$zero,0
+Loop2:
+		beq  $t2, $t4, Loop2End     # while (i < c) {
+		lw $t6,0($t1)				# t=x[i]		
+		sw $t6,8($t0)				# dout=t
+		add $t5,$t2,$t4				# j=i+c
+		sw  $t6,0($t5)				# t=y[j]
+		sw $t6,8($t0)				# dout=t
+		addi $t1,$t1,4				#inc mem point
+		addi $t2,$t2,1				#i++
+		j Loop2
+Loop2End:
+

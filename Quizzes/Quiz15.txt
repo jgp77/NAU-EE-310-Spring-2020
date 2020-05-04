@@ -1,0 +1,22 @@
+# Joshua Pollock 
+# EE310 Spring 2020 
+# Quiz 15
+# That was super easy, I complicated it at first but realized
+# I only needed 1 loop.
+# A few assumptions made in this program:
+#		1. Data inputs are stored at 5000. When it hits a 0, there are no more inputs
+#		2. Data outputs are stored at 8192
+
+addi 		$t0, $zero, 8192  		# Pointer for the output
+addi 		$t1, $zero, 5000      	# Pointer for the input
+addi 		$t2, $zero, 0       	# Running sum
+
+Loop:
+	lw		$t3, 0($t1)				# Load input at current memory address, x[i]
+	beq		$t3, $zero, End			# If input is 0, End
+	add 	$t2, $t2, $t3			# Add input to running sum
+	sw		$t2, 0($t0)				# Save current running sum to output
+	addi 	$t1, $t1, 4				# Iterate to next read memory address
+	addi 	$t0, $t0, 4				# Iterate to next write memory address
+	j		Loop					# Repeat Loop
+End:

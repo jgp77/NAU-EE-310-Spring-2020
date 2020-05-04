@@ -1,0 +1,20 @@
+# Joshua Pollock
+# EE310
+# Going to make a few assumptions here. The two inputs are
+# stored at address 5000 and 5004 respectivly. The ouput will
+# be stored at 8192. I will make this clear in comments too.
+
+addi 		$t0, $zero, 8192  		# Pointer for the output
+addi 		$t1, $zero, 5000      	# Pointer for the input
+addi 		$t4, $zero, 0       	# Set output as zero, for 0 case
+
+lw   		$t2, 0($t1)				# Fetch multiplicand
+lw	 		$t3, 4($t1)				# Fetch the multiplier
+beq  		$t2,$zero,End			# Check if multiplicand is 0 to avoid needless runtime
+mulLoop:
+	beq 	$t3,$zero, End			# Check if multiplier is 0, if so end loop
+	add 	$t4, $t4, $t2			# Add multiplicand to running sum
+	addi 	$t3,$t3,-1				# Subtract 1 from multiplier
+	j 		mulLoop					# Repeat loop
+End:
+	sw 		$t4,0($t0)				# Save t4 into the output address 8192

@@ -1,0 +1,32 @@
+# Joshua Pollock 
+# EE310 Spring 2020 
+# Quiz 9
+# Tested and works as intended
+# A few assumptions made in this program:
+#		1. Data inputs are stored at 8192 to however many are stored
+#		2. Data outputs are stored at 5000 through however much memory is needed
+#		3. Working registers are $t0 through $t4
+#		4. We can use the stack :)
+
+addi $t0, $zero, 8192  		# Set memory pointer to 8192
+addi $t1, $zero, 5000  		# Set write pointer to 5000
+addi $t2, $zero, 0     		# Set counter to 0 (sum of squares)
+
+LoopStack:
+	lw $t3, 0($t0)			# Load current data input
+	beq $t3,$zero,LoopWrite	# If no input (aka 0 input) jump to writing phase
+	addi $sp,$sp,-4         # Decrement the stack by -4
+	sw $t3,0($sp)           # Puts the user input onto the stack
+	addi $t0,$t0,4			# Iterate to next memory address for read
+	j LoopStack
+LoopWrite:
+	lw $t3, 0($sp)			# Pull the current number from the stack
+	beq $t3,$zero,End		# If no input (aka 0 input) jump to writing phase
+	mul $t4, $t3,$t3		# Else, Get the square of the number
+	add $t2,$t2,$t4			# Add the square to the counter
+	sw $t3, 0($t1)			# Store the number into memory
+	sw $t2, 4($t1)			# Store the sum of squares into memory
+	addi $t1,$t1,8			# Iterate to next memory address
+	addi $sp,$sp,4			# Iterate to next stack address
+	j LoopWrite				# Repeat loop
+End:

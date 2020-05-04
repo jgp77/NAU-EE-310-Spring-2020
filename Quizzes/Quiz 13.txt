@@ -1,0 +1,42 @@
+# Joshua Pollock
+# EE310
+# Quix 13
+#
+# while (drdy != 0)
+# {
+#	 x[c] = dinp;
+# 	c++;
+# }
+# i = c;
+# while (i > 0)
+# {
+# 	dout = x[c-i]*x[c-i] + x[i-1];
+# 	i--;
+# }
+
+addi $t0, $zero, 8192  			# I/O pointer
+addi $t1, $zero, 0       		# c = 0
+addi $t3, $zero, 0				# i = 0 for second loop
+
+Loop1:                 			# Start of loop
+	lw 		$t2, 0($t0)			# Load drdy into t2
+	beq 	$t2, $zero, EndL1	# Check drdy !=0, if = 0 goto next loop-1z
+	lw  	$t2, 4($t0)			# save dinp into t2
+	sw  	$t2, 5000($t1)		# x[c] = dinp
+	addi 	$t1, $t1, 4			# c++
+	j 		Loop1				# Repeat while
+EndL1:
+	# $t1 = c = max address offset
+	add		$t3,$zero,$t1		# i = c
+Loop2:
+	beq		$t3, $zero, End		# Check i == 0, if so End
+	sub		$t4, $t1, $t3		# $t4 = c - i
+	addi	$t5, $t3, -4		# i - 1
+	lw		$t4, 5000($t4)		# $t4 = x[c-i]
+	lw		$t5, 5000($t5)		# $t5 = x[i-1]
+	mul		$t4, $t4, $t4		# $t4 = x[c-i] * x[c-i]
+	add		$t4, $t4, $t5		# $t4 = x[c-i] * x[c-i] + x[i-1]
+	sw		$t4, 8($t0)			# dout = x[c-i] * x[c-i] + x[i-1]
+	addi	$t3, $t3, -4		# i--
+	j 		Loop2				# Repeat for loop
+End:

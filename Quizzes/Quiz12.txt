@@ -1,0 +1,32 @@
+# Joshua Pollock
+# EE310
+# This code doesn't make any sense as drdy never changes, creating an
+# infinite loop in the while loop. Unless drdy was changed at the 
+# hardware level (i.e. a switch) then this would execute forever.
+# Example 37 of supplement pack 4
+
+addi $t0, $zero, 8192  			# I/O pointer
+addi $t1, $zero, 0       		# c = 0
+addi $t3, $zero, 0				# i = 0 for for loop
+
+whileLoop:                 		# Start of loop-1z
+	lw 		$t2, 0($t0)			# Load drdy into t2
+	beq 	$t2, $zero, forLoop	# Check drdy !=0, if = 0 goto next loop-1z
+	lw  	$t2, 4($t0)			# save dinp into t2
+	sw  	$t2, 5000($t1)		# x[c] = dinp
+	addi 	$t1, $t1, 4			# c++
+	j 		whileLoop			# Repeat while
+
+# $t1 = c = max address offset
+# $t3 = i = 0
+forLoop:
+	bge		$t3, $t1, End		# Check i<c, if i>=c End
+	lw 		$t2, 5000($t3)		# save x[i]
+	mul		$t2, $t2, $t2		# $t2 = x[i] * x[i]
+	sub  	$t4, $t1, $t3		# $t4 = c-i
+	lw		$t4, 4996($t4)		# $t4 = x[c-i-1]
+	add 	$t2, $t2, $t4		# $t2 = x[i]*x[i] + x[c-i-1]
+	sw		$t2, 8($t0)			# dout = $t2 = x[i]*x[i] + x[c-i-1]
+	addi	$t3, $t3, 4			# i++
+	j 		forLoop				# Repeat for loop
+End:
